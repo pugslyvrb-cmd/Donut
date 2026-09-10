@@ -6,8 +6,4 @@ pluginManagement {
     }
 }
 
-plugins {
-    id "fabric-loom" version "1.11.4"
-}
-
 rootProject.name = "DonutCore"
