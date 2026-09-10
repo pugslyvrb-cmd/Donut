@@ -3,7 +3,7 @@
   "id": "donutcore",
   "version": "${version}",
   "name": "DonutCore",
-  "description": "Donut-style economy and server systems for Fabric 1.21.8.",
+  "description": "Donut-style economy and server systems for Fabric 26.2.",
   "authors": ["pugslyvrb-cmd"],
   "environment": "server",
   "entrypoints": {
@@ -12,8 +12,8 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=0.16.14",
-    "minecraft": "1.21.8",
-    "fabric-api": "*"
+    "fabricloader": ">=0.19.4",
+    "minecraft": "26.2",
+    "fabric-api": ">=0.160.0"
   }
 }
