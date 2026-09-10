@@ -87,8 +87,7 @@ public class DonutCore implements ModInitializer {
             dispatcher.register(Commands.literal("shards")
                     .executes(context -> {
                         ServerPlayer player = context.getSource().getPlayerOrException();
-                        context.getSource().sendSuccess(() -> Component.literal(
-                                "Shards: " + getShards(player)), false);
+                        context.getSource().sendSuccess(() -> Component.literal("Shards: " + getShards(player)), false);
                         return 1;
                     }));
 
@@ -98,27 +97,12 @@ public class DonutCore implements ModInitializer {
             dispatcher.register(Commands.literal("shop")
                     .executes(context -> {
                         context.getSource().sendSuccess(() -> Component.literal("§6§lDONUT SHOP"), false);
-                        context.getSource().sendSuccess(() -> Component.literal("§7Shop categories are being wired into the market system."), false);
-                        context.getSource().sendSuccess(() -> Component.literal("§eUse /sell and /orders for the economy systems."), false);
+                        context.getSource().sendSuccess(() -> Component.literal("§7Market shop interface is reserved for the next economy pass."), false);
+                        context.getSource().sendSuccess(() -> Component.literal("§eUse /orders to access player demand."), false);
                         return 1;
                     }));
 
-            dispatcher.register(Commands.literal("orders")
-                    .executes(context -> {
-                        context.getSource().sendSuccess(() -> Component.literal("§6§lORDERS"), false);
-                        context.getSource().sendSuccess(() -> Component.literal("§7Player buy-orders will appear here."), false);
-                        context.getSource().sendSuccess(() -> Component.literal("§e/order <search>"), false);
-                        return 1;
-                    }));
-
-            dispatcher.register(Commands.literal("order")
-                    .then(Commands.argument("search", StringArgumentType.greedyString())
-                            .executes(context -> {
-                                String search = StringArgumentType.getString(context, "search");
-                                context.getSource().sendSuccess(() -> Component.literal(
-                                        "Searching Orders for: " + search), false);
-                                return 1;
-                            })));
+            DonutOrders.register(dispatcher);
         });
     }
 
@@ -130,7 +114,7 @@ public class DonutCore implements ModInitializer {
     private static int showLeaderboards(ServerPlayer player) {
         player.sendSystemMessage(Component.literal("§6§lDONUT LEADERBOARDS"));
         player.sendSystemMessage(Component.literal("§e/baltop §7— richest players"));
-        player.sendSystemMessage(Component.literal("§eLeaderboard §7— kills, deaths and playtime"));
+        player.sendSystemMessage(Component.literal("§e/leaderboard §7— server statistic leaderboards"));
         return 1;
     }
 
@@ -142,18 +126,16 @@ public class DonutCore implements ModInitializer {
         return SHARDS.getOrDefault(player.getUUID(), 0L);
     }
 
-    private static void addBalance(ServerPlayer player, double amount) {
+    public static void addBalance(ServerPlayer player, double amount) {
         BALANCES.put(player.getUUID(), getBalance(player) + amount);
     }
 
-    private static void removeBalance(ServerPlayer player, double amount) {
+    public static void removeBalance(ServerPlayer player, double amount) {
         BALANCES.put(player.getUUID(), getBalance(player) - amount);
     }
 
     public static String format(double amount) {
-        if (amount == Math.rint(amount)) {
-            return String.format("%.0f", amount);
-        }
+        if (amount == Math.rint(amount)) return String.format("%.0f", amount);
         return String.format("%.2f", amount);
     }
 }
