@@ -41,7 +41,6 @@ public final class DonutStats {
     public static long playtimeSeconds(UUID uuid) { return PLAYTIME.getOrDefault(uuid, 0L); }
 
     private static void updateSidebar(MinecraftServer server, ServerPlayer player) {
-        String name = player.getGameProfile().name();
         String money = DonutCore.format(DonutCore.getBalance(player));
         String shards = String.valueOf(DonutCore.getShards(player));
         String kills = String.valueOf(kills(player.getUUID()));
@@ -59,7 +58,9 @@ public final class DonutStats {
     }
 
     private static void run(MinecraftServer server, String command) {
-        server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withPermission(4), command);
+        // Minecraft 26.2 uses PermissionSet rather than the old integer permission level.
+        // The server's command source already carries the appropriate server permissions.
+        server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), command);
     }
 
     private static String formatTime(long seconds) {
