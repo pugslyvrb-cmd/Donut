@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class DonutOrders {
@@ -46,7 +47,12 @@ public final class DonutOrders {
     }
 
     private static int create(CommandSourceStack source, double price, int amount) {
-        ServerPlayer buyer = source.getPlayerOrException();
+        ServerPlayer buyer = getPlayer(source);
+        if (buyer == null) {
+            source.sendFailure(Component.literal("Only players can create orders."));
+            return 0;
+        }
+
         ItemStack held = buyer.getMainHandItem();
         if (held.isEmpty()) {
             source.sendFailure(Component.literal("Hold the item you want to buy in your main hand."));
@@ -61,13 +67,19 @@ public final class DonutOrders {
 
         String itemId = BuiltInRegistries.ITEM.getKey(held.getItem()).toString();
         DonutCore.removeBalance(buyer, total);
-        ORDERS.add(new Order(NEXT_ID.getAndIncrement(), buyer.getUUID(), buyer.getName().getString(), itemId, price, amount));
-        source.sendSuccess(() -> Component.literal("Order #" + (NEXT_ID.get() - 1) + " created: " + amount + "x " + itemId + " at $" + DonutCore.format(price) + " each."), false);
+        int id = NEXT_ID.getAndIncrement();
+        ORDERS.add(new Order(id, buyer.getUUID(), buyer.getName().getString(), itemId, price, amount));
+        source.sendSuccess(() -> Component.literal("Order #" + id + " created: " + amount + "x " + itemId + " at $" + DonutCore.format(price) + " each."), false);
         return 1;
     }
 
     private static int fill(CommandSourceStack source, int id, int amount) {
-        ServerPlayer supplier = source.getPlayerOrException();
+        ServerPlayer supplier = getPlayer(source);
+        if (supplier == null) {
+            source.sendFailure(Component.literal("Only players can fill orders."));
+            return 0;
+        }
+
         Order order = find(id);
         if (order == null || order.remaining <= 0) {
             source.sendFailure(Component.literal("That order is no longer active."));
@@ -94,7 +106,12 @@ public final class DonutOrders {
     }
 
     private static int cancel(CommandSourceStack source, int id) {
-        ServerPlayer player = source.getPlayerOrException();
+        ServerPlayer player = getPlayer(source);
+        if (player == null) {
+            source.sendFailure(Component.literal("Only players can cancel orders."));
+            return 0;
+        }
+
         Order order = find(id);
         if (order == null || !order.buyer.equals(player.getUUID())) {
             source.sendFailure(Component.literal("You don't own that order."));
@@ -122,6 +139,10 @@ public final class DonutOrders {
         return 1;
     }
 
+    private static ServerPlayer getPlayer(CommandSourceStack source) {
+        return source.getEntity() instanceof ServerPlayer player ? player : null;
+    }
+
     private static Order find(int id) {
         for (Order order : ORDERS) if (order.id == id) return order;
         return null;
@@ -129,13 +150,13 @@ public final class DonutOrders {
 
     private static final class Order {
         final int id;
-        final java.util.UUID buyer;
+        final UUID buyer;
         final String buyerName;
         final String itemId;
         final double price;
         int remaining;
 
-        Order(int id, java.util.UUID buyer, String buyerName, String itemId, double price, int remaining) {
+        Order(int id, UUID buyer, String buyerName, String itemId, double price, int remaining) {
             this.id = id;
             this.buyer = buyer;
             this.buyerName = buyerName;
