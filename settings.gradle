@@ -6,4 +6,8 @@ pluginManagement {
     }
 }
 
+plugins {
+    id "net.fabricmc.fabric-loom" version "1.17.0"
+}
+
 rootProject.name = "DonutCore"
