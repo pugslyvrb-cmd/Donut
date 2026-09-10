@@ -36,6 +36,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DonutCore-Fabric-1.21.8
-          path: build/libs/*-all.jar
+          path: build/libs/donutcore-0.1.0.jar
           if-no-files-found: error
           retention-days: 30
